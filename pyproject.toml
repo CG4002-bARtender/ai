@@ -1,7 +1,18 @@
 [project]
 name = "model-training"
 version = "0.1.0"
-description = "Add your description here"
+description = "Bit-exact speech spectrogram pipeline for AMD Xilinx Ultra96-V2"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "numpy>=1.24.0",
+    "librosa>=0.10.0",
+    "scipy>=1.10.0",
+    "scikit-learn>=1.3.0",
+    "matplotlib>=3.7.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+]

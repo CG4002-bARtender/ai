@@ -38,7 +38,7 @@ These values are frozen and will be mirrored exactly in FPGA/HLS hardware.
 | Fragment size | 128 samples | One data packet from ESP32 |
 | FFT size (N) | 256 | Power of 2 |
 | Hop size | 128 | 50% overlap |
-| Total frames | 123 | `floor((16000 - 256) / 128) + 1` |
+| Total frames | 123 | `floor((16000 - 256) / 128)` — the formula gives 123 usable frames; the tail 128 samples are unused |
 | Mel bins | 40 | |
 | fmin | 0 Hz | |
 | fmax | 4 000 Hz | Nyquist at 8 kHz |
