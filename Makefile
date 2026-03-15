@@ -1,8 +1,5 @@
-BOARD ?= xilinx@ultra96
-BOARD_MODELS_DIR ?= ~/models
-
-pipeline:
-	docker compose up --remove-orphans
+BOARD ?=
+BOARD_MODELS_DIR ?= 
 
 train:
 	docker compose run --rm --no-deps trainer python scripts/train.py
@@ -17,7 +14,7 @@ compile:
 	docker compose run --rm --no-deps vitis python scripts/compile.py
 
 deploy:
-	scp artifacts/drink_classifier.xmodel $(BOARD):$(BOARD_MODELS_DIR)/drink_classifier.xmodel
+	scp artifacts/drink_classifier.xmodel xilinx@ultra96:~/models/drink_classifier.xmodel
 
 build:
 	docker compose build
