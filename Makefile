@@ -21,3 +21,5 @@ build:
 
 clean:
 	docker compose down --remove-orphans --volumes
+
+pipeline: build train finetune quantize compile clean

@@ -4,46 +4,57 @@ PyTorch → Vitis AI quantization → `.xmodel` for deployment on Ultra96-V2 DPU
 
 ## Prerequisites
 
-- Docker + Docker Compose
-- `nvidia-container-toolkit` (for GPU training)
-- SSH access to the Ultra96 board
+### 1. Docker Engine
 
-## Pipeline
+1. Run `wsl --install` in PowerShell (enables WSL2, required for Docker's GPU support)
+2. Install [Docker Desktop for Windows](https://docs.docker.com/desktop/install/windows-install/) — select WSL2 backend during setup
+3. Open PowerShell and run `docker run hello-world`
 
-Each stage depends on the previous one's output in `artifacts/`.
+### 2. NVIDIA Container Toolkit (GPU training)
 
-| Command | Description |
-|---|---|
-| `make train` | Train base model on SpeechCommands → `artifacts/base.pt` |
-| `make finetune` | Finetune on custom drink audio dataset → `artifacts/model.pt` |
-| `make quantize` | Quantize model using Vitis AI → `artifacts/SmallResNet_int.xmodel` |
-| `make compile` | Compile to DPU target → `artifacts/drink_classifier.xmodel` |
-| `make deploy` | SCP `.xmodel` to Ultra96 at `~/models/` |
+Install the [NVIDIA driver for WSL](https://developer.nvidia.com/cuda/wsl) on the Windows host (not inside WSL). No separate `nvidia-container-toolkit` install needed.
 
-## Run the full pipeline
+### 3. SSH config for Ultra96
 
-```bash
-make build     
-make train
-make finetune
-make quantize
-make compile
-make deploy
+Add the following to `C:\Users\<you>\.ssh\config` (create the file if it doesn't exist):
+
+```
+Host ultra96
+  HostName makerslab-fpga-40.ddns.comp.nus.edu.sg
+  User xilinx
 ```
 
-## Other commands
+Then `make deploy` and `ssh ultra96` will resolve without needing the full hostname.
+
+#### 4. Install Make
+
+`make` requires WSL2 or [chocolatey](https://chocolatey.org/): `choco install make`. Docker Desktop handles the containers natively.
+
+## Quickstart
 
 ```bash
-make build    # rebuild Docker images after code/dependency changes
-make clean    # tear down all containers and volumes
+make pipeline   
 ```
+## Individual stages
+
+Run any stage independently — useful when iterating on a specific step:
+
+| Command | Container | Output |
+|---|---|---|
+| `make build` | — | builds both Docker images |
+| `make train` | trainer (GPU) | `artifacts/base.pt` |
+| `make finetune` | trainer (GPU) | `artifacts/model.pt` |
+| `make quantize` | vitis (CPU) | `artifacts/SmallResNet_int.xmodel` |
+| `make compile` | vitis (CPU) | `artifacts/drink_classifier.xmodel` |
+| `make deploy` | — | copies xmodel to Ultra96 |
+| `make clean` | — | tears down containers and volumes |
 
 ## Data
 
 Place custom drink audio samples in `data/audio/raw/` before running `make finetune`.
 
-SpeechCommands dataset is downloaded automatically on first `make train` and cached in `~/.cache/speechcommands`.
+SpeechCommands is downloaded automatically on first `make train` and cached in `~/.cache/speechcommands`.
 
-## Board target
+## Retargeting to a different board
 
-The model is compiled for `DPUCZDX8G_ISA1_B4096` (Ultra96-V2). To target a different board, update `arch/DPUCZDX8G/Ultra96/arch.json` with the correct fingerprint and run `make build compile deploy`.
+Update `arch/DPUCZDX8G/Ultra96/arch.json` with the correct DPU fingerprint, then:
