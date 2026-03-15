@@ -1,0 +1,12 @@
+FROM pytorch/pytorch:1.13.1-cuda11.6-cudnn8-runtime
+
+RUN apt-get update && apt-get install -y --no-install-recommends libsndfile1 && rm -rf /var/lib/apt/lists/*
+
+RUN pip install librosa scipy scikit-learn matplotlib torchaudio
+
+WORKDIR /workspace
+ENV PYTHONPATH=/workspace/src \
+    NUMBA_CACHE_DIR=/tmp/numba_cache \
+    MPLCONFIGDIR=/tmp/matplotlib
+
+CMD ["bash", "-c", "python scripts/train.py && python scripts/finetune.py"]

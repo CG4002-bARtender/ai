@@ -1,0 +1,25 @@
+services:
+  trainer:
+    build:
+      context: .
+      dockerfile: Dockerfile.trainer
+    volumes:
+      - .:/workspace
+      - ${HOME}/.cache/speechcommands:/root/.cache/speechcommands
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  vitis:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/workspace
+    depends_on:
+      trainer:
+        condition: service_completed_successfully
