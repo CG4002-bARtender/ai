@@ -1,9 +1,9 @@
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
+from pytorch_nndct.apis import torch_quantizer
 
 from config import VitisConfig
-
 
 class Quantizer:
     def __init__(self, model: nn.Module, cfg: VitisConfig):
@@ -11,7 +11,6 @@ class Quantizer:
         self._cfg = cfg
 
     def quantize(self, calib_loader: DataLoader) -> None:
-        from pytorch_nndct.apis import torch_quantizer
 
         cfg = self._cfg
         out_dir = str(cfg.artifacts_dir)

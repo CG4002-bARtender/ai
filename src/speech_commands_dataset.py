@@ -21,6 +21,11 @@ class SpeechCommandsDataset(Dataset):
         audio_cfg: AudioConfig,
         spectrogram_converter: SpectrogramConverter,
     ):
+        sc_path = Path(root) / "SpeechCommands" / "speech_commands_v0.02"
+        sentinel_files = ["validation_list.txt", "testing_list.txt"]
+        if sc_path.exists() and not all((sc_path / f).exists() for f in sentinel_files):
+            import shutil
+            shutil.rmtree(sc_path.parent)
         self._ds = torchaudio.datasets.SPEECHCOMMANDS(str(root), download=True, subset=subset)
         self._cfg = audio_cfg
         self._converter = spectrogram_converter
