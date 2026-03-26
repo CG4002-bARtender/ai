@@ -1,6 +1,3 @@
-BOARD ?=
-BOARD_MODELS_DIR ?= 
-
 train:
 	docker compose run --rm --no-deps trainer python scripts/train.py
 
