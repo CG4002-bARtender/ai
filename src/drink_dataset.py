@@ -1,5 +1,4 @@
 from __future__ import annotations
-import re
 from pathlib import Path
 
 import numpy as np
@@ -65,9 +64,13 @@ class DrinkDataset(Dataset):
         classes: list[str] | None = None,
     ) -> tuple["DrinkDataset", "DrinkDataset", list[str]]:
         all_classes: dict[str, list[Path]] = {}
-        for f in sorted(data_dir.glob("*.wav")):
-            cls = re.sub(r"\d+$", "", f.stem)
-            all_classes.setdefault(cls, []).append(f)
+        for class_dir in sorted(data_dir.iterdir()):
+            if not class_dir.is_dir():
+                continue
+            cls = class_dir.name
+            files = sorted(class_dir.rglob("*.wav"))
+            if files:
+                all_classes[cls] = files
 
         if classes is not None:
             all_classes = {c: all_classes[c] for c in classes if c in all_classes}

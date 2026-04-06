@@ -36,7 +36,7 @@ class TrainConfig:
     speech_commands_cache: Path = field(
         default_factory=lambda: Path.home() / ".cache" / "speechcommands"
     )
-    data_dir: Path = field(default_factory=lambda: Path("recordings"))
+    data_dir: Path = field(default_factory=lambda: Path("data/final_8k_with_noise"))
     artifacts_dir: Path = field(default_factory=lambda: Path("artifacts"))
     base_checkpoint: str = "base.pt"
     model_checkpoint: str = "model.pt"
