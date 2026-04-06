@@ -29,24 +29,28 @@ class ResBlock(nn.Module):
 
 
 class SmallResNet(nn.Module):
-    def __init__(self, n_classes: int):
+    def __init__(self, n_classes: int, dropout: float = 0.3):
         super().__init__()
         self.stem = nn.Sequential(
-            nn.Conv2d(1, 16, 3, padding=1, bias=False),
-            nn.BatchNorm2d(16),
+            nn.Conv2d(1, 32, 3, padding=1, bias=False),
+            nn.BatchNorm2d(32),
             nn.ReLU(inplace=True),
         )
-        self.block1 = ResBlock(16, 32, pool=True)
-        self.block2 = ResBlock(32, 64, pool=True)
-        self.block3 = ResBlock(64, 64, pool=False)
+        self.block1 = ResBlock(32, 64, pool=True)
+        self.block2 = ResBlock(64, 128, pool=True)
+        self.block3 = ResBlock(128, 128, pool=True)
+        self.block4 = ResBlock(128, 128, pool=False)
         self.gap = nn.AdaptiveAvgPool2d(1)
-        self.fc = nn.Linear(64, n_classes)
+        self.dropout = nn.Dropout(dropout)
+        self.fc = nn.Linear(128, n_classes)
 
     def forward(self, x):
         x = self.stem(x)
         x = self.block1(x)
         x = self.block2(x)
         x = self.block3(x)
+        x = self.block4(x)
         x = self.gap(x)
         x = x.flatten(1)
+        x = self.dropout(x)
         return self.fc(x)

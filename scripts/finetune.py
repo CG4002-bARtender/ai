@@ -34,7 +34,7 @@ def main():
     model = SmallResNet(n_classes=model_cfg.n_base_classes).to(device)
     trainer = Trainer(model, device, train_cfg)
     trainer.load_checkpoint(train_cfg.artifacts_dir / train_cfg.base_checkpoint)
-    model.fc = nn.Linear(64, model_cfg.n_drink_classes)
+    model.fc = nn.Linear(128, model_cfg.n_drink_classes)
     nn.init.xavier_uniform_(model.fc.weight)
     nn.init.zeros_(model.fc.bias)
     model = model.to(device)

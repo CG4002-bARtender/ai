@@ -9,7 +9,7 @@ class AudioConfig:
     target_samples: int = 16000
     n_fft: int = 256
     hop_length: int = 128
-    n_mels: int = 40
+    n_mels: int = 64
     fmin: float = 0.0
     fmax: float = 4000.0
 
