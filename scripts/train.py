@@ -43,7 +43,7 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Device: {device}")
 
-    model = SmallResNet(n_classes=model_cfg.n_base_classes).to(device)
+    model = SmallResNet(n_classes=model_cfg.n_base_classes, channels=model_cfg.base_channels).to(device)
     print(f"Parameters: {sum(p.numel() for p in model.parameters()):,}")
 
     trainer = Trainer(model, device, train_cfg)

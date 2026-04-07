@@ -29,24 +29,35 @@ class ResBlock(nn.Module):
 
 
 class SmallResNet(nn.Module):
-    def __init__(self, n_classes: int):
+    # channels: stem output size, then one entry per residual block.
+    # The first two blocks downsample (pool=True); remaining blocks do not.
+    def __init__(self, n_classes: int, channels: list = None):
         super().__init__()
+        if channels is None:
+            channels = [32, 64, 128, 128]
+
+        stem_ch = channels[0]
         self.stem = nn.Sequential(
-            nn.Conv2d(1, 16, 3, padding=1, bias=False),
-            nn.BatchNorm2d(16),
+            nn.Conv2d(1, stem_ch, 3, padding=1, bias=False),
+            nn.BatchNorm2d(stem_ch),
             nn.ReLU(inplace=True),
         )
-        self.block1 = ResBlock(16, 32, pool=True)
-        self.block2 = ResBlock(32, 64, pool=True)
-        self.block3 = ResBlock(64, 64, pool=False)
+
+        blocks = []
+        in_ch = stem_ch
+        for i, out_ch in enumerate(channels[1:]):
+            pool = (i < 2)  # first two transitions downsample
+            blocks.append(ResBlock(in_ch, out_ch, pool=pool))
+            in_ch = out_ch
+        self.blocks = nn.Sequential(*blocks)
+
+        self.n_features = in_ch
         self.gap = nn.AdaptiveAvgPool2d(1)
-        self.fc = nn.Linear(64, n_classes)
+        self.fc = nn.Linear(self.n_features, n_classes)
 
     def forward(self, x):
         x = self.stem(x)
-        x = self.block1(x)
-        x = self.block2(x)
-        x = self.block3(x)
+        x = self.blocks(x)
         x = self.gap(x)
         x = x.flatten(1)
         return self.fc(x)

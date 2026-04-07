@@ -1,0 +1,8 @@
+{
+    "lib": "libvart-dpu-runner.so",
+    "filename": "drink_classifier.xmodel",
+    "kernel": [
+        "subgraph_SmallResNet__SmallResNet_AdaptiveAvgPool2d_gap__2199_fix"
+    ],
+    "target": "DPUCZDX8G_ISA1_B1600_0101000016010404"
+}

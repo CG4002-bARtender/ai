@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/SHAIYAN ALAM/Downloads/ultra96/**)",
+      "Bash(docker compose:*)"
+    ]
+  }
+}

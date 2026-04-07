@@ -18,7 +18,7 @@ class AudioConfig:
 class ModelConfig:
     n_base_classes: int = 35
     n_drink_classes: int = 10
-    base_channels: list[int] = field(default_factory=lambda: [16, 32, 64, 64])
+    base_channels: list[int] = field(default_factory=lambda: [32, 64, 128, 128])
 
 
 @dataclass

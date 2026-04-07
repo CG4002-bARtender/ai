@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 
+
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 import torch
@@ -10,7 +11,7 @@ from config import AudioConfig, ModelConfig, TrainConfig, VitisConfig
 from audio_loader import AudioLoader
 from spectrogram import SpectrogramConverter
 from augmentation import Augmenter
-from drink_dataset import DrinkDataset
+from combined_dataset import make_combined_splits
 from model import SmallResNet
 from trainer import Trainer
 from quantizer import Quantizer
@@ -27,13 +28,13 @@ def main():
     augmenter = Augmenter(audio_cfg)
 
     device = torch.device("cpu")  # Vitis AI quantization runs on CPU
-    model = SmallResNet(n_classes=model_cfg.n_drink_classes).to(device)
+    model = SmallResNet(n_classes=model_cfg.n_drink_classes, channels=model_cfg.base_channels).to(device)
     trainer = Trainer(model, device, train_cfg)
     trainer.load_checkpoint(train_cfg.artifacts_dir / train_cfg.model_checkpoint)
     model.eval()
 
-    _, val_ds, _ = DrinkDataset.make_splits(
-        train_cfg.data_dir, audio_loader, spec_converter, augmenter
+    _, val_ds, _ = make_combined_splits(
+        [train_cfg.data_dir], audio_loader, spec_converter, augmenter
     )
     calib_loader = DataLoader(
         val_ds, batch_size=vitis_cfg.calib_batch_size, shuffle=False, num_workers=2

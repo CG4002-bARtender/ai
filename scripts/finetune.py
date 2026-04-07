@@ -11,7 +11,7 @@ from config import AudioConfig, ModelConfig, TrainConfig
 from audio_loader import AudioLoader
 from spectrogram import SpectrogramConverter
 from augmentation import Augmenter
-from drink_dataset import DrinkDataset
+from combined_dataset import make_combined_splits
 from model import SmallResNet
 from trainer import Trainer
 
@@ -31,22 +31,22 @@ def main():
     print(f"Device: {device}")
 
     # Load base model and replace classification head
-    model = SmallResNet(n_classes=model_cfg.n_base_classes).to(device)
+    model = SmallResNet(n_classes=model_cfg.n_base_classes, channels=model_cfg.base_channels).to(device)
     trainer = Trainer(model, device, train_cfg)
     trainer.load_checkpoint(train_cfg.artifacts_dir / train_cfg.base_checkpoint)
-    model.fc = nn.Linear(64, model_cfg.n_drink_classes)
+    model.fc = nn.Linear(model.n_features, model_cfg.n_drink_classes)
     nn.init.xavier_uniform_(model.fc.weight)
     nn.init.zeros_(model.fc.bias)
     model = model.to(device)
 
-    train_ds, val_ds, class_names = DrinkDataset.make_splits(
-        train_cfg.data_dir, audio_loader, spec_converter, augmenter
+    train_ds, val_ds, class_names = make_combined_splits(
+        [train_cfg.data_dir], audio_loader, spec_converter, augmenter
     )
     print(f"Classes: {class_names}")
     print(f"Train: {len(train_ds)}  Val: {len(val_ds)}")
 
-    train_loader = DataLoader(train_ds, batch_size=16, shuffle=True, num_workers=2)
-    val_loader = DataLoader(val_ds, batch_size=16, shuffle=False, num_workers=2)
+    train_loader = DataLoader(train_ds, batch_size=32, shuffle=True, num_workers=2)
+    val_loader = DataLoader(val_ds, batch_size=32, shuffle=False, num_workers=2)
 
     model_ckpt = train_cfg.artifacts_dir / train_cfg.model_checkpoint
 
